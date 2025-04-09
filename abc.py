@@ -2,21 +2,13 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-import plotly.express as px  
+import plotly.express as px
 
 # Set Streamlit page config
 st.set_page_config(page_title="UPSC Data Dashboard", layout="wide")
 
 # Load dataset
 df = pd.read_csv("UPSC_CSE_Results.csv")
-
-# Title and Sidebar
-st.title("📊 UPSC Civil Services Results Dashboard")
-st.sidebar.header("Navigation")
-page = st.sidebar.radio("Go to", [
-    "Overview", "Selection Breakdown", "Category-wise Analysis", 
-    "Service Allotment", "State Insights", "Score Distributions", "Correlations & Trends"
-])
 
 # Cutoff dictionary
 cutoff = {
@@ -25,6 +17,14 @@ cutoff = {
     "SC": {"Prelims": 75, "Mains": 650, "Interview": 130, "Final": 850},
     "ST": {"Prelims": 70, "Mains": 620, "Interview": 120, "Final": 820}
 }
+
+# Title and Sidebar
+st.title("📊 UPSC Civil Services Results Dashboard")
+st.sidebar.header("Navigation")
+page = st.sidebar.radio("Go to", [
+    "Overview", "Selection Breakdown", "Category-wise Analysis",
+    "Service Allotment", "State Insights", "Score Distributions", "Correlations & Trends"
+])
 
 # Selection Classification
 @st.cache_data
@@ -46,14 +46,16 @@ def classify_data(df):
                         else:
                             interview_fail += 1
                     else:
-                        mains_fail += 1
+                        interview_fail += 1
                 else:
-                    prelims_fail += 1
+                    mains_fail += 1
+            else:
+                prelims_fail += 1
     return selected, prelims_fail, mains_fail, interview_fail
 
 selected_count, prelims_fail, mains_fail, interview_fail = classify_data(df)
 
-# Main sections
+# Main Sections
 if page == "Overview":
     st.subheader("📈 Average Scores Over the Years")
     avg_scores = df.groupby('Year')[['Prelims_Score', 'Mains_Score', 'Final_Score']].mean()
@@ -74,7 +76,7 @@ elif page == "Selection Breakdown":
     st.pyplot(fig)
 
     st.subheader("📉 Where Candidates Failed")
-    fail_labels = ["Prelims ➡ Mains", "Mains ➡ Interview", "Interview ➡ Final"]
+    fail_labels = ["Prelims ➡️ Mains", "Mains ➡️ Interview", "Interview ➡️ Final"]
     fail_values = [prelims_fail, mains_fail, interview_fail]
     fig2, ax2 = plt.subplots()
     ax2.pie(fail_values, labels=fail_labels, autopct='%1.1f%%', colors=["orange", "yellow", "purple"])
@@ -102,7 +104,7 @@ elif page == "Service Allotment":
     st.pyplot(fig)
 
 elif page == "State Insights":
-    st.subheader("🗺 Selected Candidates by State")
+    st.subheader("🗺️ Selected Candidates by State")
     state_selection = df[df['Selection_Status'] == 'Yes'].groupby('State').size().reset_index(name='Count')
     fig = px.choropleth(
         state_selection, locations='State', locationmode='geojson-id',
@@ -150,4 +152,4 @@ elif page == "Correlations & Trends":
 
 # Footer
 st.markdown("---")
-st.markdown("Made with ❤ using Streamlit | Data Source: UPSC Results Dataset")
+st.markdown("Made with ❤️ using Streamlit | **Data Source:** UPSC Results Dataset")
